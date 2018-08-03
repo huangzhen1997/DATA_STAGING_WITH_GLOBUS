@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+</head>
+
+
+
+
+<nav class="navbar navbar-toggleable-md navbar-light bg-light">
+    <a class="navbar-brand" href="#">Job Client</a>
+    <ul class="navbar-nav">
+    </ul>
+  </nav>
+
+<div class="container-fluid">
+  <div class="form-group">
+    
+    <label for="stage_in_source">Stage In Source</label>
+    <input id="stage_in_source" placeholder="Enter URL" class="form-control" value="ddb59aef-6d04-11e5-ba46-22000b92c6ec||/~/input_data/"></input>
+
+    <label for="stage_in_destination">Stage In Destination</label>
+    <input id="stage_in_destination" placeholder="Enter URL" class="form-control" value="097b8756-83fd-11e8-9536-0a6d4e044368||/~/Desktop/Testing/input_data"></input>
+
+    <label for="stage_out_destination">Stage Out Destination</label>
+    <input id="stage_out_destination" placeholder="Enter URL" class="form-control" value="ddb59af0-6d04-11e5-ba46-22000b92c6ec||/~/input_data"></input>
+
+    <div class="text-center" style="margin:5%">
+    <button class="btn btn-primary" onclick="transfer()">Submit Transfer</button>
+    </div>
+  
+  </div>
+</div>
+
+<script>
+function transfer(){
+    $.ajax({
+    type: 'POST',
+    cache: false,
+    url: "{{url_for('submitTransfer')}}", 
+    success: function (resp){
+        console.log("transfer complete")
+        location.href="http://localhost:8081/api/authcallback"
+        },
+        data:{
+          stage_in_source: $("#stage_in_source").val(),
+          stage_in_destination: $("#stage_in_destination").val(),
+          stage_out_destination: $("#stage_out_destination").val(),
+        } 
+}); 
+}
+</script>
+
+
+</html>
+
+
+
+

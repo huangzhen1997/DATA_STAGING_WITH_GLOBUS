@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js">     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+</head>
+
+
+
+
+
+<nav class="navbar navbar-toggleable-md navbar-light bg-light">
+    <a class="navbar-brand" href="#">Status</a>
+    <ul class="navbar-nav">
+    </ul>
+    <button class="btn btn btn-outline-success" type="button" onclick="location.href='/home';">Home</button>
+  </nav>
+
+
+
+ {%if taskid%}
+    <div class="alert alert-success" role="alert" id="response" style="margin:1%;">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+    </button>
+    <strong>Job Submitted!</strong> Job ID is : {{taskid}} with a delay of {{wait}} seconds.
+</div>
+
+{%else%}     
+{%endif%} 
+ 
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        <div class="col-md" style="height:100%">
+            <div class="table-responsive">
+                <table class="table" id="jobtable">
+                    <thead>
+                        <tr>
+                            <th>UUID</th>
+                            <th>Runtime</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jobtablebody">
+                    </tbody>
+                </table>
+            </div>   
+        </div>
+   
+        <div class="col-md" style="height:100%">
+             
+             <button style="margin:5px;" type="button" class="btn btn-dark btn-block" data-toggle="collapse" data-target="#log_div">Toggle Console</button>
+
+
+             <div id="log_div" class="container-fluid collpase bg-dark h-75" style="margin:5px; overflow-y: scroll; border-radius:2px;">
+                <ul id="logging">
+                </ul>
+        </div>
+        </div>
+</div>
+
+
+
+
+
+</html>
+
+
+
+<style>
+
+form-control{
+  width: 25px;
+  margin: 5px;
+}
+
+table {
+  height: 250px;
+  overflow-y: scroll;
+  margin: 5px;
+  width:100%;
+}
+
+html{
+    height:100%;
+}
+
+body {
+    height:100%;
+    overflow-x: hidden
+}
+
+ul{
+    list-style: none;
+}
+
+
+li {
+    color:rgb(193,193,193)
+}
+
+li:before {
+		content: "\00BB \0020";
+	}
+
+</style>
+
+
+
+
+<script>
+
+
+    jax();
+    var ws = new WebSocket('ws://localhost:5555/api/task/events/task-succeeded/');
+    
+    ws.onmessage = function (event) {
+        $('#jobtablebody').empty()
+        jax();
+    }
+    
+    $('#logging').append('<label  style=" color:rgb(193,193,193); float: left; margin:0 0 0 -45px;">'+ (new Date().toLocaleTimeString()) + '</label>'+'<li>'  +'User logged in...' + ' <span class="badge badge-pill badge-light">Step 0</span></li>')
+
+
+    $('#logging').append('<label  style=" color:rgb(193,193,193); float: left; margin:0 0 0 -45px;">'+ (new Date().toLocaleTimeString()) + '</label>'+'<li> <font color= #{{taskcolor}}>  [{{taskid}}] </font>  is submitted with wait time : {{wait}} seconds ' + '<span class="badge badge-pill badge-light">Step 0</span></li>')
+
+
+    const socket = io('http://127.0.0.1:8081');
+    
+    socket.on('connect', function(){
+        console.log('connected')
+        })
+
+
+    socket.on('message', function(data) {
+                 console.log(data);
+                
+                 var task_color = data.task_color
+
+                 var uncolored_log = data.log
+                 var split_log = data.log.split(']')
+                 console.log('the split_log is')
+                 console.log(split_log)
+                 var task_id = split_log[0]
+                 var rest_of_message = split_log[1]
+                 
+                 setTimeout(function(){
+
+                    if (data.step == '1'){
+                        $('#logging').append('<label  style=" color:rgb(193,193,193); float: left; margin:0 0 0 -45px;">'+ (new Date().toLocaleTimeString()) + '</label>'+'<li>'  + '<font color='+task_color+'>' + task_id +']'+'</font>'+ rest_of_message +' <span class="badge badge-pill badge-info">Step 1</span></li>')
+                    }
+                    else if (data.step == '2'){
+                        $('#logging').append('<label  style=" color:rgb(193,193,193); float: left; margin:0 0 0 -45px;">'+ (new Date().toLocaleTimeString()) + '</label>'+'<li>'  +'<font color='+task_color+'>' + task_id +']'+'</font>'+ rest_of_message  +' <span class="badge badge-pill badge-primary">Step 2</span></li>')
+                    }
+                    else if (data.step == '3'){
+                        $('#logging').append('<label  style=" color:rgb(193,193,193); float: left; margin:0 0 0 -45px;">'+ (new Date().toLocaleTimeString()) + '</label>'+'<li>'  +'<font color='+task_color+'>' + task_id +']'+'</font>'+ rest_of_message +' <span class="badge badge-pill badge-warning">Step 3</span></li>')
+                    }
+                    else if (data.step == '4'){
+                        $('#logging').append('<label  style=" color:rgb(193,193,193); float: left; margin:0 0 0 -45px;">'+ (new Date().toLocaleTimeString()) + '</label>'+'<li>'  +'<font color='+task_color+'>' + task_id +'</font>'+ rest_of_message +' <span class="badge badge-pill badge-success">Step 4</span></li>')
+                    }
+                    
+                 },100)
+               
+            });
+
+ 
+function clearJobs(){
+    $.ajax({
+    type: 'POST',
+    cache: false,
+    dataType:'json',
+    url: "http://localhost:5555/api/workers/clear-cache", 
+    success: function (resp){
+        $('#jobtablebody').empty()
+        console.log(resp)
+        console.log('jobs cleared')
+    }
+});  
+}
+
+
+
+
+function jax(){ 
+
+    
+    $.ajax({
+    type: 'GET',
+    cache: false,
+    dataType:'json',
+    url: "http://localhost:5555/api/tasks?taskname=api.do_job", 
+    success: function (resp){
+        $('#jobtablebody').empty()
+        console.log(resp)
+
+        $.each(resp, function(key,value){
+            if (value.state == 'RECEIVED' || value.state == 'STARTED' || value.state == 'PENDING'){
+                console.log('the color is ')
+                console.log(value.args[1])
+                $("#jobtable tbody").append("<tr><td>"+value.uuid+"</td><td>"+value.runtime+"</td><td>"+'  <div class="progress"><div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div></div>'+"</td></tr>")
+            }else{
+                $("#jobtable tbody").append("<tr><td>"+value.uuid+"</td><td>"+value.runtime+"</td><td>"+ value.state +"</td></tr>")
+            }
+            console.log(value.uuid)
+            console.log(value.runtime)
+            console.log(value.state)
+        })
+
+    }
+});  
+
+     
+}
+
+
+
+</script>

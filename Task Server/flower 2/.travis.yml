@@ -1,0 +1,15 @@
+language: python
+os:
+  - linux
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "pypy"
+install:
+  - pip install tox-travis
+before_script:
+  - pip freeze
+script:
+  - tox
