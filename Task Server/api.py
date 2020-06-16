@@ -299,7 +299,7 @@ def authcallback():
         
         return redirect(url_for('task_server.transfer', stage_in_source=sis,stage_in_dest=sid,stage_out_dest=sod,stage_in_source_path=siop,stage_in_dest_path=sidp,stage_out_dest_path=sodp))
 
-@bp.route('/submitjobspecs',methods=["POST"])
+@bp.route('/submitjobspecs',methods=["POST"]) # job specs from the Job Client, save all specs into Redis DB
 def submitjob():
     
     form = request.form
@@ -324,13 +324,6 @@ def submitjob():
 
 @bp.route('/transfer',methods=["GET"])
 def transfer():
-
-
-
-
-
-
-
 
     #read from authcallback
     stage_in_source = request.args.get('stage_in_source')
